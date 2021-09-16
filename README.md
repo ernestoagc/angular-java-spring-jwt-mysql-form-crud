@@ -1,4 +1,4 @@
-# COMPARE TARIFF APP - NODEJS AND ANGULAR
+# FORM CRUD JWT - JAVA AND ANGULAR
 
 #### **1.  Deploy solution in local environment**
 Download the source code, and into the folder execute the docker compose file:
