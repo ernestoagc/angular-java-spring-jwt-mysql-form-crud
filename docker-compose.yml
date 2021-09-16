@@ -1,0 +1,74 @@
+version: '3.5'
+services:
+
+  dbform-crudTest:  
+    container_name: dbform-crudTest
+    image: mysql:8.0
+    platform: linux/x86_64
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_DATABASE: dbForm
+      MYSQL_USER: dbUser
+      MYSQL_PASSWORD: dbUser123
+    ports:
+      - "3306:3306"    
+    networks:
+      - form-crud
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-form
+    depends_on:
+      - dbform-crudTest
+    links:
+      - dbform-crudTest
+    environment:
+      PMA_HOST: dbform-crudTest
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8081:80
+    networks:
+      - form-crud
+      
+  form-crud-backend:
+    restart: on-failure
+    container_name: form-crud-backend
+    build: ./form-crud-jwt-backend/
+    depends_on:
+      - dbform-crudTest
+    expose:
+      - "8500"
+    ports:
+      - 8500:8500
+    environment:
+      spring.profiles.active: test
+      MYSQL_HOST: "dbform-crudTest"
+      MYSQL_PORT: "3306"
+      MYSQL_DB_USER: "root"
+      MYSQL_DB_PASSWORD: "password123"
+    links:
+      - dbform-crudTest
+    networks:
+      - form-crud
+      
+  form-crud-frontend:
+    restart: on-failure
+    container_name: form-crud-frontend
+    build: ./form-crud-jwt-frontend/
+    depends_on:
+      - form-crud-backend
+    expose:
+      - "80"
+    ports:
+      - 8085:80
+    links:
+      - form-crud-backend
+    networks:
+      - form-crud  
+
+networks:
+  form-crud:
+    name: form-crud-net 
